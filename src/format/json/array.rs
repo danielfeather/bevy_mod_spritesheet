@@ -1,4 +1,3 @@
-use bevy::prelude::Vec2;
 use serde::{Deserialize, Serialize};
 use crate::format::json::{FrameData, Meta};
 
@@ -10,9 +9,9 @@ pub struct JsonArray {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Frame {
-    filename: String,
-    frame: FrameData,
-    rotated: bool,
-    trimmed: bool,
+    pub filename: String,
+    pub frame: FrameData,
+    pub rotated: bool,
+    pub trimmed: bool,
 }
 

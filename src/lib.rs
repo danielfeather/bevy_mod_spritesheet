@@ -1,10 +1,10 @@
 use std::error::Error;
 use std::fmt;
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
-use bevy::asset::io::{Reader, VecReader};
+use bevy::asset::io::Reader;
 use bevy::prelude::*;
-use bevy::utils::thiserror::Error;
 use serde::Deserialize;
+use systems::{load_atlas, setup_texture_atlases};
 use crate::format::json::array::JsonArray;
 
 mod format;
@@ -16,12 +16,19 @@ impl Plugin for SpriteSheetPlugin {
     fn build(&self, app: &mut App) {
         app
             .init_asset::<SpriteSheet>()
-            .init_asset_loader::<Loader>();
+            .init_asset_loader::<Loader>()
+            .add_systems(Update, (load_atlas, setup_texture_atlases));
     }
 }
 
-#[derive(Debug, Deref, DerefMut)]
-pub struct Frame<'a>(&'a str);
+#[derive(Debug, Component)]
+pub struct Frame(String);
+
+impl Frame {
+    pub fn name(name: String) -> Self {
+        Self(name)
+    }
+}
 
 #[derive(Asset, TypePath, Deserialize)]
 pub struct SpriteSheet(JsonArray);
@@ -52,8 +59,6 @@ impl AssetLoader for Loader {
                 .await.map_err(|_| {LoaderError::Io})?;
 
             let format = serde_json::from_slice::<JsonArray>(raw.as_slice()).map_err(|_| { LoaderError::JsonParseError })?;
-
-            info!("{:?}", format);
 
             Ok(SpriteSheet(format))
         })
