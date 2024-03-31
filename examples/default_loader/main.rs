@@ -21,7 +21,7 @@ fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
             texture: image,
             ..default()
         },
-        Frame::name("RunRight04.png".into()),
+        Frame::name("gabe-idle-run 1.png".into()),
         sprite_sheet, 
     ));
 }
