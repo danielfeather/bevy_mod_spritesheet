@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use loader::Loader;
-use serde::Deserialize;
-use systems::{load_atlas, setup_texture_atlases};
+use systems::{detect_frame_changes, load_atlas, setup_texture_atlases};
 use crate::format::json::array::JsonArray;
 
 pub mod format;
@@ -15,7 +14,7 @@ impl Plugin for SpriteSheetPlugin {
         app
             .init_asset::<SpriteSheet>()
             .init_asset_loader::<Loader>()
-            .add_systems(Update, (load_atlas, setup_texture_atlases));
+            .add_systems(Update, (load_atlas, setup_texture_atlases, detect_frame_changes));
     }
 }
 
@@ -28,6 +27,6 @@ impl Frame {
     }
 }
 
-#[derive(Asset, TypePath, Deserialize)]
+#[derive(Asset, TypePath)]
 pub struct SpriteSheet(JsonArray);
 

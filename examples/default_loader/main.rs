@@ -19,9 +19,13 @@ fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
     commands.spawn((
         SpriteBundle {
             texture: image,
+            sprite: Sprite {
+                custom_size: Some(Vec2::splat(500.0)),
+                ..default()
+            },
             ..default()
         },
-        Frame::name("gabe-idle-run 1.png".into()),
+        Frame::name("gabe-idle-run 6.png".into()),
         sprite_sheet, 
     ));
 }

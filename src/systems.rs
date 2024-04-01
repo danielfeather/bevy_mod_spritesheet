@@ -1,14 +1,5 @@
-use std::ops::Deref;
-
 use bevy::prelude::*;
 use crate::{Frame, SpriteSheet};
-
-/// Queries for `Entity`s without an `Handle<Image>` that have a loaded `Handle<SpriteSheet>` to see
-/// if the image can be loaded using the path within the SpriteSheets metadata.
-pub fn load_image() {
-    todo!();
-}
-
 
 pub fn load_atlas(
     entities: Query<(Entity, &Handle<SpriteSheet>), Without<Handle<TextureAtlasLayout>>>,
@@ -52,20 +43,46 @@ pub fn setup_texture_atlases(
     sprite_sheets: Res<Assets<SpriteSheet>>,
     mut commands: Commands
 ) {
-    for (entity, frame_name, sprite_sheet, layout) in entities.iter() {
+    for (entity, frame, sprite_sheet, layout) in entities.iter() {
         if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet) {
-            let frame = sprite_sheet.0.frames.iter().position(|frame | &frame.filename == &frame_name.0);
+            
+            let index = get_sprite_index(frame, sprite_sheet);
 
-            if !frame.is_some() {
-                error!("Couldn't find frame: {}", frame_name.0)
+            if index.is_none() {
+                error!("Couldn't find frame: {}", frame.0)
             }
 
             commands.entity(entity).insert(TextureAtlas {
-                index: frame.unwrap(),
+                index: index.unwrap(),
                 layout: layout.clone(),
             });
         } else {
             error!("SpriteSheet is missing from `Assets<SpriteSheet>`")
         }
     }
+}
+
+pub fn detect_frame_changes(
+    mut changed: Query<(&Frame, &Handle<SpriteSheet>, &mut TextureAtlas), Changed<Frame>>,
+    sprite_sheets: Res<Assets<SpriteSheet>>,
+) {
+    for (frame, sprite_sheet_handle, mut atlas) in changed.iter_mut() {
+        let sprite_sheet = sprite_sheets.get(sprite_sheet_handle);
+
+        if sprite_sheet.is_none() {
+            error!("SpriteSheet is missing from `Assets<SpriteSheet>`")
+        }
+
+        let index = get_sprite_index(frame, sprite_sheet.unwrap());
+
+        if index.is_none() {
+            error!("Couldn't find frame: {}", frame.0)
+        }
+
+        atlas.index = index.unwrap()
+    }
+}
+
+fn get_sprite_index(frame_name: &Frame, sprite_sheet: &SpriteSheet) -> Option<usize> {
+    sprite_sheet.0.frames.iter().position(|frame | &frame.filename == &frame_name.0)
 }

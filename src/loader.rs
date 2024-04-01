@@ -30,7 +30,7 @@ impl AssetLoader for Loader {
                 .read_to_end(&mut raw)
                 .await.map_err(|_| {LoaderError::Io})?;
 
-            let format = serde_json::from_slice::<JsonArray>(raw.as_slice()).map_err(|_| { LoaderError::JsonParseError })?;
+            let format = serde_json::from_slice::<JsonArray>(raw.as_slice()).map_err(|_| LoaderError::JsonParseError )?;
 
             Ok(SpriteSheet(format))
         })
@@ -47,9 +47,18 @@ pub enum LoaderError {
     Io,
     JsonParseError,
 }
+
 impl fmt::Display for LoaderError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "An {} error occurred", self)
     }
 }
-impl Error for LoaderError {}
+
+impl Error for LoaderError {
+    fn description(&self) -> &str {
+        match self {
+            Self::Io => "Error with Io",
+            Self::JsonParseError => "Error with parsing",
+        }
+    }
+}
