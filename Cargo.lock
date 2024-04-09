@@ -715,6 +715,7 @@ dependencies = [
  "bevy",
  "serde",
  "serde_json",
+ "thiserror",
 ]
 
 [[package]]

@@ -14,9 +14,10 @@ bevy = { version = "0.13.1", default-features = false, features = [
 ] }
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.115"
+thiserror = "1.0.58"
 
 [[example]]
-name = "default_loader"
+name = "default_reader"
 
 [dev-dependencies]
 bevy = "0.13.1"

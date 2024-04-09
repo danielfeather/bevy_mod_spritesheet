@@ -1,12 +1,10 @@
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use bevy::asset::io::Reader;
-use std::fmt;
-use std::error::Error;
+use thiserror::Error;
 
 use crate::format::json::array::JsonArray;
 use crate::SpriteSheet;
-/// Purposefully kept empty, so it does not cause conflict with other loaders
-/// which use the `.json` extension.
+
 pub const SUPPORTED_EXTENSIONS: &[&str] = &["json"];
 
 #[derive(Default)]
@@ -28,9 +26,9 @@ impl AssetLoader for Loader {
 
             let _ = reader
                 .read_to_end(&mut raw)
-                .await.map_err(|_| {LoaderError::Io})?;
+                .await?;
 
-            let format = serde_json::from_slice::<JsonArray>(raw.as_slice()).map_err(|_| LoaderError::JsonParseError )?;
+            let format = serde_json::from_slice::<JsonArray>(raw.as_slice())?;
 
             Ok(SpriteSheet(format))
         })
@@ -42,23 +40,10 @@ impl AssetLoader for Loader {
 }
 
 #[non_exhaustive]
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum LoaderError {
-    Io,
-    JsonParseError,
-}
-
-impl fmt::Display for LoaderError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "An {} error occurred", self)
-    }
-}
-
-impl Error for LoaderError {
-    fn description(&self) -> &str {
-        match self {
-            Self::Io => "Error with Io",
-            Self::JsonParseError => "Error with parsing",
-        }
-    }
+    #[error("An error occured while reading the asset data")]
+    Io(#[from] std::io::Error),
+    #[error("An error occured while parsing the sprite sheet")]
+    JsonParseError(#[from] serde_json::Error),
 }

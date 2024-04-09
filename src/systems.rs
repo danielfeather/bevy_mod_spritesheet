@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::{Frame, SpriteSheet};
+use crate::{Frame, SpriteSheet, SpriteSheetOptions};
 
 pub fn load_atlas(
     entities: Query<(Entity, &Handle<SpriteSheet>), Without<Handle<TextureAtlasLayout>>>,
@@ -41,10 +41,10 @@ pub fn load_atlas(
 pub fn setup_texture_atlases(
     entities: Query<(Entity, &Frame, &Handle<SpriteSheet>, &Handle<TextureAtlasLayout>), Without<TextureAtlas>>,
     sprite_sheets: Res<Assets<SpriteSheet>>,
-    mut commands: Commands
+    mut commands: Commands,
 ) {
-    for (entity, frame, sprite_sheet, layout) in entities.iter() {
-        if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet) {
+    for (entity, frame, sprite_sheet_handle, layout) in entities.iter() {
+        if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
             
             let index = get_sprite_index(frame, sprite_sheet);
 
@@ -58,6 +58,18 @@ pub fn setup_texture_atlases(
             });
         } else {
             error!("SpriteSheet is missing from `Assets<SpriteSheet>`")
+        }
+    }
+}
+
+pub fn load_textures(
+    entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet>), Without<Handle<Image>>>,
+    sprite_sheets: Res<Assets<SpriteSheet>>,
+    mut commands: Commands,
+) {
+    for (entity, options, sprite_sheet_handle) in entities.iter() {
+        if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
+            info!("{}", sprite_sheet_handle.path().unwrap());
         }
     }
 }
