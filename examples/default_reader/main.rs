@@ -1,9 +1,14 @@
-use bevy::prelude::*;
+use bevy::{input::common_conditions::input_toggle_active, prelude::*};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_spritesheet::{Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetOptions, SpriteSheetPlugin};
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins.set(ImagePlugin::default_nearest()), SpriteSheetPlugin))
+        .add_plugins((
+            DefaultPlugins.set(ImagePlugin::default_nearest()), 
+            WorldInspectorPlugin::default().run_if(input_toggle_active(true, KeyCode::Escape)),
+            SpriteSheetPlugin
+        ))
         .add_systems(Startup, (spawn_camera,load_sprite_sheet))
         .run();
 }

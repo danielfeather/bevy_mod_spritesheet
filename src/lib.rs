@@ -12,6 +12,7 @@ pub struct SpriteSheetPlugin;
 impl Plugin for SpriteSheetPlugin {
     fn build(&self, app: &mut App) {
         app
+            .register_type::<Frame>()
             .init_asset::<SpriteSheet>()
             .init_asset_loader::<Loader>()
             .add_systems(Update, (
@@ -23,7 +24,7 @@ impl Plugin for SpriteSheetPlugin {
     }
 }
 
-#[derive(Debug, Component, Default)]
+#[derive(Debug, Component, Default, Reflect)]
 pub struct Frame(String);
 
 impl Frame {
