@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::{Frame, SpriteSheet, SpriteSheetOptions};
+use bevy::prelude::*;
 
 pub fn load_atlas(
     entities: Query<(Entity, &Handle<SpriteSheet>), Without<Handle<TextureAtlasLayout>>>,
@@ -15,7 +15,6 @@ pub fn load_atlas(
             }
 
             if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-
                 let format = &sprite_sheet.0;
 
                 let size = &format.meta.size;
@@ -39,13 +38,20 @@ pub fn load_atlas(
 }
 
 pub fn setup_texture_atlases(
-    entities: Query<(Entity, &Frame, &Handle<SpriteSheet>, &Handle<TextureAtlasLayout>), Without<TextureAtlas>>,
+    entities: Query<
+        (
+            Entity,
+            &Frame,
+            &Handle<SpriteSheet>,
+            &Handle<TextureAtlasLayout>,
+        ),
+        Without<TextureAtlas>,
+    >,
     sprite_sheets: Res<Assets<SpriteSheet>>,
     mut commands: Commands,
 ) {
     for (entity, frame, sprite_sheet_handle, layout) in entities.iter() {
         if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-            
             let index = get_sprite_index(frame, sprite_sheet);
 
             if index.is_none() {
@@ -69,6 +75,10 @@ pub fn load_textures(
     mut commands: Commands,
     server: Res<AssetServer>,
 ) {
+    if entities.is_empty() {
+        return;
+    }
+
     for (entity, options, sprite_sheet_handle) in entities.iter() {
         if !options.texture_loading {
             continue;
@@ -76,18 +86,20 @@ pub fn load_textures(
 
         if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
             if !loaded.contains(&entity) {
-
                 let path = sprite_sheet_handle.path();
 
                 if path.is_none() {
-                    error!("Unable to determine path to sprite sheet image");
+                    error!("Unable to determine path to sprite sheet");
+                    loaded.push(entity);
                     continue;
                 }
 
                 let image_path = sprite_sheet.0.meta.image.as_ref();
 
                 if image_path.is_none() {
+                    debug!("{:?}", image_path);
                     error!("Unable to determine path to sprite sheet image");
+                    loaded.push(entity);
                     continue;
                 }
 
@@ -97,6 +109,7 @@ pub fn load_textures(
                     Ok(resolved) => server.load(resolved),
                     Err(e) => {
                         error!("Unable to resolve path to sprite sheet image, {}", e);
+                        loaded.push(entity);
                         continue;
                     }
                 };
@@ -132,5 +145,9 @@ pub fn detect_frame_changes(
 }
 
 fn get_sprite_index(frame_name: &Frame, sprite_sheet: &SpriteSheet) -> Option<usize> {
-    sprite_sheet.0.frames.iter().position(|frame | &frame.filename == &frame_name.0)
+    sprite_sheet
+        .0
+        .frames
+        .iter()
+        .position(|frame| &frame.filename == &frame_name.0)
 }

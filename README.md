@@ -11,10 +11,6 @@ Create [Bevy](https://github.com/bevyengine/bevy) `TextureAtlasLayout`s from spr
 
 </div>
 
-
-
-
-
 ## Highlights
 
 - Currently supports JSON Array (more coming)
@@ -54,4 +50,4 @@ commands.spawn((
 
 ## Example
 
-Check out the basic example under `examples/default_loader`.
+Check out the basic example under `examples/default_reader`.
