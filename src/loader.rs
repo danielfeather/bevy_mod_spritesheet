@@ -1,14 +1,17 @@
+use std::marker::PhantomData;
+
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use bevy::asset::io::Reader;
+use bevy::prelude::*;
+use bevy::reflect::erased_serde::Serialize;
+use serde::Deserialize;
 use thiserror::Error;
 
-use crate::format::json::array::JsonArray;
-use crate::SpriteSheet;
+use crate::{spritesheet, SpriteSheet};
 
 pub const SUPPORTED_EXTENSIONS: &[&str] = &["json"];
 
-#[derive(Default)]
-pub struct Loader;
+pub struct Loader<T>(PhantomData<T>);
 
 impl AssetLoader for Loader {
     type Asset = SpriteSheet;
@@ -28,7 +31,7 @@ impl AssetLoader for Loader {
                 .read_to_end(&mut raw)
                 .await?;
 
-            let format = serde_json::from_slice::<JsonArray>(raw.as_slice())?;
+            let format = serde_json::from_slice::<T>(raw.as_slice())?;
 
             Ok(SpriteSheet(format))
         })
@@ -42,8 +45,8 @@ impl AssetLoader for Loader {
 #[non_exhaustive]
 #[derive(Debug, Error)]
 pub enum LoaderError {
-    #[error("An error occured while reading the asset data")]
+    #[error("An error occurred while reading the asset data")]
     Io(#[from] std::io::Error),
-    #[error("An error occured while parsing the sprite sheet")]
+    #[error("An error occurred while parsing the sprite sheet")]
     JsonParseError(#[from] serde_json::Error),
 }

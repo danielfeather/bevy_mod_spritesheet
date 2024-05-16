@@ -1,10 +1,10 @@
-use crate::{Frame, SpriteSheet, SpriteSheetOptions};
+use crate::{spritesheet, Frame, SpriteSheet, SpriteSheetOptions};
 use bevy::prelude::*;
 
-pub fn load_atlas(
-    entities: Query<(Entity, &Handle<SpriteSheet>), Without<Handle<TextureAtlasLayout>>>,
-    mut events: EventReader<AssetEvent<SpriteSheet>>,
-    sprite_sheets: Res<Assets<SpriteSheet>>,
+pub fn load_atlas<T: spritesheet::SpriteSheet + Send + Sync + TypePath>(
+    entities: Query<(Entity, &Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>,
+    mut events: EventReader<AssetEvent<SpriteSheet<T>>>,
+    sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
@@ -17,17 +17,7 @@ pub fn load_atlas(
             if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
                 let format = &sprite_sheet.0;
 
-                let size = &format.meta.size;
-                let mut layout = TextureAtlasLayout::new_empty(Vec2::new(size.w, size.h));
-
-                for frame in &format.frames {
-                    let data = &frame.frame;
-
-                    let rect = Rect::new(data.x, data.y, data.x + data.w, data.y + data.h);
-                    layout.add_texture(rect);
-                }
-
-                let layout_handle = layouts.add(layout);
+                let layout_handle = layouts.add(sprite_sheet.into_layout());
 
                 commands.entity(entity).insert(layout_handle);
             } else {
@@ -37,22 +27,22 @@ pub fn load_atlas(
     }
 }
 
-pub fn setup_texture_atlases(
+pub fn setup_texture_atlases<T: spritesheet::SpriteSheet + Send + Sync + TypePath>(
     entities: Query<
         (
             Entity,
             &Frame,
-            &Handle<SpriteSheet>,
+            &Handle<SpriteSheet<T>>,
             &Handle<TextureAtlasLayout>,
         ),
         Without<TextureAtlas>,
     >,
-    sprite_sheets: Res<Assets<SpriteSheet>>,
+    sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut commands: Commands,
 ) {
     for (entity, frame, sprite_sheet_handle, layout) in entities.iter() {
         if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-            let index = get_sprite_index(frame, sprite_sheet);
+            let index = sprite_sheet.get_sprite_index(frame);
 
             if index.is_none() {
                 error!("Couldn't find frame: {}", frame.0)
@@ -68,9 +58,9 @@ pub fn setup_texture_atlases(
     }
 }
 
-pub fn load_textures(
-    entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet>)>,
-    sprite_sheets: Res<Assets<SpriteSheet>>,
+pub fn load_textures<T: spritesheet::SpriteSheet + Send + Sync + TypePath>(
+    entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet<T>>)>,
+    sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut loaded: Local<Vec<Entity>>,
     mut commands: Commands,
     server: Res<AssetServer>,
@@ -94,7 +84,7 @@ pub fn load_textures(
                     continue;
                 }
 
-                let image_path = sprite_sheet.0.meta.image.as_ref();
+                let image_path = sprite_sheet.get_texture();
 
                 if image_path.is_none() {
                     debug!("{:?}", image_path);
@@ -121,9 +111,9 @@ pub fn load_textures(
     }
 }
 
-pub fn detect_frame_changes(
-    mut changed: Query<(&Frame, &Handle<SpriteSheet>, &mut TextureAtlas), Changed<Frame>>,
-    sprite_sheets: Res<Assets<SpriteSheet>>,
+pub fn detect_frame_changes<T: spritesheet::SpriteSheet + Send + Sync + TypePath>(
+    mut changed: Query<(&Frame, &Handle<SpriteSheet<T>>, &mut TextureAtlas), Changed<Frame>>,
+    sprite_sheets: Res<Assets<SpriteSheet<T>>>,
 ) {
     for (frame, sprite_sheet_handle, mut atlas) in changed.iter_mut() {
         let sprite_sheet = sprite_sheets.get(sprite_sheet_handle);
@@ -132,8 +122,8 @@ pub fn detect_frame_changes(
             error!("SpriteSheet is missing from `Assets<SpriteSheet>`");
             continue;
         }
-
-        let index = get_sprite_index(frame, sprite_sheet.unwrap());
+        
+        let index = sprite_sheet.unwrap().get_sprite_index(frame);
 
         if index.is_none() {
             error!("Couldn't find frame: {}", frame.0);
@@ -142,12 +132,4 @@ pub fn detect_frame_changes(
 
         atlas.index = index.unwrap()
     }
-}
-
-fn get_sprite_index(frame_name: &Frame, sprite_sheet: &SpriteSheet) -> Option<usize> {
-    sprite_sheet
-        .0
-        .frames
-        .iter()
-        .position(|frame| &frame.filename == &frame_name.0)
 }

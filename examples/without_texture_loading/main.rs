@@ -22,7 +22,7 @@ fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
 
     commands.spawn((
         SpriteBundle {
-            texture: asset_server.load_with_settings::<Image, ImageLoaderSettings>("gabe-idle-run.png", |settings: &mut ImageLoaderSettings| {
+            texture: asset_server.load_with_settings::<Image, ImageLoaderSettings>("gabe-idle-run", |settings: &mut ImageLoaderSettings| {
                 settings.format = ImageFormatSetting::Format(ImageFormat::Png)
             }),
             sprite: Sprite {

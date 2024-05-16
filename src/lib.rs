@@ -6,6 +6,7 @@ use crate::format::json::array::JsonArray;
 pub mod format;
 mod systems;
 pub mod loader;
+mod spritesheet;
 
 pub struct SpriteSheetPlugin;
 
@@ -13,13 +14,13 @@ impl Plugin for SpriteSheetPlugin {
     fn build(&self, app: &mut App) {
         app
             .register_type::<Frame>()
-            .init_asset::<SpriteSheet>()
-            .init_asset_loader::<Loader>()
+            .init_asset::<SpriteSheet<JsonArray>>()
+            .init_asset_loader::<Loader<JsonArray>>()
             .add_systems(Update, (
-                load_atlas, 
-                setup_texture_atlases, 
-                detect_frame_changes, 
-                load_textures
+                load_atlas::<JsonArray>, 
+                setup_texture_atlases::<JsonArray>, 
+                detect_frame_changes::<JsonArray>, 
+                load_textures::<JsonArray>,
             ));
     }
 }
@@ -33,8 +34,11 @@ impl Frame {
     }
 }
 
-#[derive(Asset, TypePath)]
-pub struct SpriteSheet(JsonArray);
+// #[derive(Asset, TypePath)]
+// pub struct SpriteSheet(JsonArray);
+
+#[derive(Debug, Asset, TypePath, Deref)]
+pub struct SpriteSheet<T: Send + Sync + TypePath + spritesheet::SpriteSheet>(T);
 
 #[derive(Debug, Component, Default)]
 pub struct SpriteSheetOptions {
@@ -45,8 +49,8 @@ pub struct SpriteSheetOptions {
 }
 
 #[derive(Debug, Bundle, Default)]
-pub struct SpriteSheetBundle {
+pub struct SpriteSheetBundle<T: spritesheet::SpriteSheet + Send + Sync + TypePath> {
     pub frame: Frame,
-    pub sprite_sheet: Handle<SpriteSheet>,
+    pub sprite_sheet: Handle<SpriteSheet<T>>,
     pub options: SpriteSheetOptions,
 }

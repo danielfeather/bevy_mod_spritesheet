@@ -51,3 +51,9 @@ commands.spawn((
 ## Example
 
 Check out the basic example under `examples/default_reader`.
+
+## Supported Bevy Version
+
+|`bevy`|`bevy_mod_spritesheet`|
+|---|---|
+|0.13.1|0.1.0|

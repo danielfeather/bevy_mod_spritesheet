@@ -1,9 +1,10 @@
+use bevy::prelude::*;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use crate::format::json::Meta;
 use crate::format::json::FrameData;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, TypePath)]
 pub struct JsonHash {
     frames: HashMap<String, Frame>,
     meta: Meta,
