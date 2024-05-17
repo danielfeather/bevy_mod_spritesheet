@@ -5,7 +5,7 @@ use bevy::{
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_spritesheet::{
-    Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetOptions, SpriteSheetPlugin,
+    format::json::array::JsonArray, Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetOptions, SpriteSheetPlugin
 };
 use bevy_web_asset::WebAssetPlugin;
 
@@ -31,7 +31,7 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
-    let sprite_sheet: Handle<SpriteSheet> = asset_server.load("https://raw.githubusercontent.com/danielfeather/bevy_mod_spritesheet/texture-loading/assets/gabe-idle-run.json");
+    let sprite_sheet: Handle<SpriteSheet<JsonArray>> = asset_server.load("https://raw.githubusercontent.com/danielfeather/bevy_mod_spritesheet/texture-loading/assets/gabe-idle-run.json");
 
     commands.spawn((
         SpriteBundle {
