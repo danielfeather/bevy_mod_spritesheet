@@ -3,19 +3,17 @@ use std::marker::PhantomData;
 use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use bevy::asset::io::Reader;
 use bevy::prelude::*;
-use bevy::reflect::erased_serde::Serialize;
-use serde::Deserialize;
 use thiserror::Error;
 
 use crate::spritesheet_format::SpriteSheetFormat;
-use crate::{spritesheet_format, SpriteSheet};
+use crate::SpriteSheet;
 
 pub const SUPPORTED_EXTENSIONS: &[&str] = &["json"];
 
 #[derive(Default)]
 pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
 
-impl<T: Send + Sync + TypePath + spritesheet_format::SpriteSheetFormat> AssetLoader for Loader<T>
+impl<T: Send + Sync + TypePath + SpriteSheetFormat> AssetLoader for Loader<T>
 where T: SpriteSheetFormat {
     type Asset = SpriteSheet<T>;
     type Settings = ();

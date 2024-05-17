@@ -15,7 +15,6 @@ pub fn load_atlas<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypeP
             }
 
             if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-                let format = &sprite_sheet.0;
 
                 let layout_handle = layouts.add(sprite_sheet.into_layout());
 
