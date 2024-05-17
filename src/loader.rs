@@ -8,12 +8,14 @@ use thiserror::Error;
 use crate::format::SpriteSheetFormat;
 use crate::SpriteSheet;
 
+/// Supported extensions for sprite sheets.
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
     #[cfg(any(feature = "json-array", feature = "json-hash"))]
     "json"
 ];
 
 #[derive(Default)]
+/// Generic loader for any sprite sheet format.
 pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
 
 impl<T: Send + Sync + TypePath + SpriteSheetFormat> AssetLoader for Loader<T>

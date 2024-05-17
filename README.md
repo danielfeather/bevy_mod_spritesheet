@@ -13,9 +13,8 @@ Create [Bevy](https://github.com/bevyengine/bevy) `TextureAtlasLayout`s from spr
 
 ## Highlights
 
-- Currently supports JSON Array (more coming)
+- Currently supports: JSON Array and JSON Hash
 - Add a single `Frame` component with the name of frame you want from the sprite sheet
-
 
 ## Getting Started
 
@@ -23,7 +22,7 @@ Create [Bevy](https://github.com/bevyengine/bevy) `TextureAtlasLayout`s from spr
 ```rs
 use bevy_mod_spritesheet::SpriteSheetPlugin;
 ...
-.add_plugins(SpriteSheetPlugin)
+app.add_plugins(SpriteSheetPlugin)
 ...
 ```
 
@@ -50,10 +49,10 @@ commands.spawn((
 
 ## Example
 
-Check out the basic example under `examples/default_reader`.
+Check out the `examples` folder for ideas on usage.
 
-## Supported Bevy Version
+## Supported Bevy Versions
 
 |`bevy`|`bevy_mod_spritesheet`|
 |---|---|
-|0.13.1|0.1.0|
+|0.13|0.1.0|

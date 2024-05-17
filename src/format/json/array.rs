@@ -4,6 +4,7 @@ use crate::{format::{json::{FrameData, Meta}, SpriteSheetFormat}, loader::Loader
 use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
 
 #[derive(Debug, Default, Serialize, Deserialize, TypePath)]
+/// JSON Array sprite sheet format.
 pub struct JsonArray {
     pub frames: Vec<Frame>,
     pub meta: Meta,
@@ -11,11 +12,13 @@ pub struct JsonArray {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// An individual frame in a JSON Array sprite sheet.
 pub struct Frame {
     pub filename: String,
     pub frame: FrameData,
 }
 
+/// Plugin to add support for loading sprite sheets in JSON Array format.
 pub struct JsonArrayPlugin;
 
 impl Plugin for JsonArrayPlugin {

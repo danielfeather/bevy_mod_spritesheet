@@ -7,6 +7,7 @@ use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_text
 use crate::SpriteSheet;
 
 #[derive(Serialize, Deserialize, TypePath, Default)]
+/// JSON Hash sprite sheet format.
 pub struct JsonHash {
     frames: HashMap<String, Frame>,
     meta: Meta,
@@ -16,10 +17,12 @@ pub struct JsonHash {
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// An individual frame in a JSON Hash sprite sheet.
 pub struct Frame {
     frame: FrameData,
 }
 
+/// Plugin to add support for loading sprite sheets in JSON Hash format.
 pub struct JsonHashPlugin;
 
 impl Plugin for JsonHashPlugin {

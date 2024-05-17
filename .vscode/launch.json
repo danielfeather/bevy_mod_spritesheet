@@ -7,7 +7,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug (MacOS)",
+            "name": "Debug (Unix)",
             "cargo": {
                 "args": [
                     "build",
