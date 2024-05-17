@@ -5,10 +5,13 @@ use bevy::asset::io::Reader;
 use bevy::prelude::*;
 use thiserror::Error;
 
-use crate::spritesheet_format::SpriteSheetFormat;
+use crate::format::SpriteSheetFormat;
 use crate::SpriteSheet;
 
-pub const SUPPORTED_EXTENSIONS: &[&str] = &["json"];
+pub const SUPPORTED_EXTENSIONS: &[&str] = &[
+    #[cfg(any(feature = "json-array", feature = "json-hash"))]
+    "json"
+];
 
 #[derive(Default)]
 pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
@@ -48,6 +51,6 @@ where T: SpriteSheetFormat {
 pub enum LoaderError {
     #[error("An error occurred while reading the asset data")]
     Io(#[from] std::io::Error),
-    #[error("An error occurred while parsing the sprite sheet")]
-    JsonParseError(#[from] serde_json::Error),
+    #[error("An error occurred while parsing the sprite sheet format data")]
+    ParseError(#[from] serde_json::Error),
 }

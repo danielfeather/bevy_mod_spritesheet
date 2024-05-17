@@ -1,7 +1,7 @@
-use crate::{spritesheet_format, Frame, SpriteSheet, SpriteSheetOptions};
+use crate::{format, Frame, SpriteSheet, SpriteSheetOptions};
 use bevy::prelude::*;
 
-pub fn load_atlas<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn load_atlas<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     entities: Query<(Entity, &Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>,
     mut events: EventReader<AssetEvent<SpriteSheet<T>>>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
@@ -20,13 +20,13 @@ pub fn load_atlas<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypeP
 
                 commands.entity(entity).insert(layout_handle);
             } else {
-                error!("SpriteSheet is missing from `Assets<SpriteSheet>`")
+                error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`")
             }
         }
     }
 }
 
-pub fn setup_texture_atlases<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     entities: Query<
         (
             Entity,
@@ -52,12 +52,12 @@ pub fn setup_texture_atlases<T: spritesheet_format::SpriteSheetFormat + Send + S
                 layout: layout.clone(),
             });
         } else {
-            error!("SpriteSheet is missing from `Assets<SpriteSheet>`")
+            error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`")
         }
     }
 }
 
-pub fn load_textures<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet<T>>)>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut loaded: Local<Vec<Entity>>,
@@ -110,7 +110,7 @@ pub fn load_textures<T: spritesheet_format::SpriteSheetFormat + Send + Sync + Ty
     }
 }
 
-pub fn detect_frame_changes<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn detect_frame_changes<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     mut changed: Query<(&Frame, &Handle<SpriteSheet<T>>, &mut TextureAtlas), Changed<Frame>>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
 ) {
