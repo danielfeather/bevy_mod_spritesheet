@@ -1,9 +1,11 @@
+use std::default;
+
 use serde::{Deserialize, Serialize};
 
 pub mod array;
 pub mod hash;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug,Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Meta {
     pub app: String,
@@ -33,13 +35,14 @@ pub struct FrameData {
     pub h: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug,Default, Serialize, Deserialize)]
 pub struct Size {
     pub w: f32,
     pub h: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug,Default, Serialize, Deserialize)]
 pub enum Format {
+    #[default]
     RGBA8888
 }

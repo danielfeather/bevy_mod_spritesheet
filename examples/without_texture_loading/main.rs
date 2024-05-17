@@ -1,6 +1,6 @@
 use bevy::{input::common_conditions::input_toggle_active, prelude::*, render::texture::{ImageFormat, ImageFormatSetting, ImageLoaderSettings}};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use bevy_mod_spritesheet::{Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetPlugin};
+use bevy_mod_spritesheet::{format::json::array::JsonArray, Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetPlugin};
 
 fn main() {
     App::new()
@@ -18,7 +18,7 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
-    let sprite_sheet: Handle<SpriteSheet> = asset_server.load("gabe-idle-run.json");
+    let sprite_sheet: Handle<SpriteSheet<JsonArray>> = asset_server.load("gabe-idle-run.json");
 
     commands.spawn((
         SpriteBundle {

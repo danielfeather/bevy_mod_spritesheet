@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::{format::json::{FrameData, Meta}, spritesheet::SpriteSheet};
+use crate::{format::json::{FrameData, Meta}, spritesheet_format::SpriteSheetFormat};
 
 use super::Size;
 
-#[derive(Debug, Serialize, Deserialize, TypePath)]
+#[derive(Debug,Default, Serialize, Deserialize, TypePath)]
 pub struct JsonArray {
     pub frames: Vec<Frame>,
     pub meta: Meta,
@@ -23,7 +23,7 @@ pub struct Frame {
 }
 
 
-impl SpriteSheet for JsonArray {
+impl SpriteSheetFormat for JsonArray {
     fn get_sprite_index(&self, frame_name: &crate::Frame) -> Option<usize> {
         self
         .frames
@@ -45,5 +45,9 @@ impl SpriteSheet for JsonArray {
     }
     fn get_texture(&self) -> Option<String> {
         self.meta.image.clone()
+    }
+    
+    fn new(raw:Vec<u8>)-> Self {
+        serde_json::from_slice::<JsonArray>(raw.as_slice()).unwrap()
     }
 }

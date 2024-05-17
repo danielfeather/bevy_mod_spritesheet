@@ -6,7 +6,7 @@ use crate::format::json::array::JsonArray;
 pub mod format;
 mod systems;
 pub mod loader;
-mod spritesheet;
+mod spritesheet_format;
 
 pub struct SpriteSheetPlugin;
 
@@ -38,7 +38,7 @@ impl Frame {
 // pub struct SpriteSheet(JsonArray);
 
 #[derive(Debug, Asset, TypePath, Deref)]
-pub struct SpriteSheet<T: Send + Sync + TypePath + spritesheet::SpriteSheet>(T);
+pub struct SpriteSheet<T: Send + Sync + TypePath + spritesheet_format::SpriteSheetFormat>(T);
 
 #[derive(Debug, Component, Default)]
 pub struct SpriteSheetOptions {
@@ -49,7 +49,7 @@ pub struct SpriteSheetOptions {
 }
 
 #[derive(Debug, Bundle, Default)]
-pub struct SpriteSheetBundle<T: spritesheet::SpriteSheet + Send + Sync + TypePath> {
+pub struct SpriteSheetBundle<T: spritesheet_format::SpriteSheetFormat + Send + Sync + TypePath> {
     pub frame: Frame,
     pub sprite_sheet: Handle<SpriteSheet<T>>,
     pub options: SpriteSheetOptions,

@@ -7,14 +7,17 @@ use bevy::reflect::erased_serde::Serialize;
 use serde::Deserialize;
 use thiserror::Error;
 
-use crate::{spritesheet, SpriteSheet};
+use crate::spritesheet_format::SpriteSheetFormat;
+use crate::{spritesheet_format, SpriteSheet};
 
 pub const SUPPORTED_EXTENSIONS: &[&str] = &["json"];
 
-pub struct Loader<T>(PhantomData<T>);
+#[derive(Default)]
+pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
 
-impl AssetLoader for Loader {
-    type Asset = SpriteSheet;
+impl<T: Send + Sync + TypePath + spritesheet_format::SpriteSheetFormat> AssetLoader for Loader<T>
+where T: SpriteSheetFormat {
+    type Asset = SpriteSheet<T>;
     type Settings = ();
     type Error = LoaderError;
     fn load<'a>(
@@ -31,7 +34,7 @@ impl AssetLoader for Loader {
                 .read_to_end(&mut raw)
                 .await?;
 
-            let format = serde_json::from_slice::<T>(raw.as_slice())?;
+            let format = T::new(raw);
 
             Ok(SpriteSheet(format))
         })
