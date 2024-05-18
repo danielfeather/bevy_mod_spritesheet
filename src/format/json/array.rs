@@ -61,8 +61,4 @@ impl SpriteSheetFormat for JsonArray {
     fn get_texture(&self) -> Option<String> {
         self.meta.image.clone()
     }
-    
-    fn new(raw:Vec<u8>)-> Self {
-        serde_json::from_slice::<JsonArray>(raw.as_slice()).unwrap()
-    }
 }
