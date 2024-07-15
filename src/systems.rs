@@ -8,20 +8,24 @@ pub fn load_atlas<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
+    if events.is_empty() {
+        return;
+    }
+
     for event in events.read() {
         for (entity, sprite_sheet_handle) in entities.iter() {
             if !event.is_loaded_with_dependencies(sprite_sheet_handle) {
                 continue;
             }
 
-            if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
+            let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+                error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`");
+                continue;
+            };
 
-                let layout_handle = layouts.add(sprite_sheet.into_layout());
+            let layout_handle = layouts.add(sprite_sheet.into_layout());
 
-                commands.entity(entity).insert(layout_handle);
-            } else {
-                error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`")
-            }
+            commands.entity(entity).insert(layout_handle);
         }
     }
 }
@@ -40,23 +44,28 @@ pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePa
     mut commands: Commands,
 ) {
     for (entity, frame, sprite_sheet_handle, layout) in entities.iter() {
-        if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-            let index = sprite_sheet.get_sprite_index(frame);
+        let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+            error!("SpriteSheet is missing from assets store`");
+            continue;
+        };
 
-            if index.is_none() {
-                error!("Couldn't find frame: {}", frame.0)
+        let index = match sprite_sheet.get_sprite_index(frame) {
+            Some(index) => index,
+            None => {
+                error!("Couldn't find frame: {}", **frame);
+                0
             }
+        };
 
-            commands.entity(entity).insert(TextureAtlas {
-                index: index.unwrap(),
-                layout: layout.clone(),
-            });
-        } else {
-            error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`")
-        }
+        commands.entity(entity).insert(TextureAtlas {
+            index: index,
+            layout: layout.clone(),
+        });
     }
 }
 
+/// System for loading the corresponding textures for the specified SpriteSheetFormat
+/// if `texture_loading` is enabled and if the sprite sheet format supports it
 pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet<T>>)>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
@@ -73,62 +82,57 @@ pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
             continue;
         }
 
-        if let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) {
-            if !loaded.contains(&entity) {
-                let path = sprite_sheet_handle.path();
+        let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+            continue;
+        };
 
-                if path.is_none() {
-                    error!("Unable to determine path to sprite sheet");
-                    loaded.push(entity);
-                    continue;
-                }
-
-                let image_path = sprite_sheet.get_texture();
-
-                if image_path.is_none() {
-                    debug!("{:?}", image_path);
-                    error!("Unable to determine path to sprite sheet image");
-                    loaded.push(entity);
-                    continue;
-                }
-
-                let resolved_image_path = path.unwrap().resolve_embed(image_path.unwrap().as_ref());
-
-                let image_handle: Handle<Image> = match resolved_image_path {
-                    Ok(resolved) => server.load(resolved),
-                    Err(e) => {
-                        error!("Unable to resolve path to sprite sheet image, {}", e);
-                        loaded.push(entity);
-                        continue;
-                    }
-                };
-
-                commands.entity(entity).insert(image_handle);
-                loaded.push(entity);
-            }
+        if loaded.contains(&entity) {
+            continue;
         }
+
+        let Some(path) = sprite_sheet_handle.path() else {
+            error!("Unable to determine path to sprite sheet");
+            loaded.push(entity);
+            continue;
+        };
+
+        let Some(image_path) = sprite_sheet.get_texture() else {
+            error!("Unable to determine path to sprite sheet image");
+            loaded.push(entity);
+            continue;
+        };
+
+        let image_handle: Handle<Image> = match path.resolve_embed(image_path) {
+            Ok(resolved) => server.load(resolved),
+            Err(e) => {
+                error!("Unable to resolve path to sprite sheet image, {}", e);
+                loaded.push(entity);
+                continue;
+            }
+        };
+
+        commands.entity(entity).insert(image_handle);
+        loaded.push(entity);
     }
 }
 
+/// System for watching for changes on `Frame` components so that the underlying `TextureAtlas` components
+/// can be updated
 pub fn detect_frame_changes<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     mut changed: Query<(&Frame, &Handle<SpriteSheet<T>>, &mut TextureAtlas), Changed<Frame>>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
 ) {
     for (frame, sprite_sheet_handle, mut atlas) in changed.iter_mut() {
-        let sprite_sheet = sprite_sheets.get(sprite_sheet_handle);
-
-        if sprite_sheet.is_none() {
-            error!("SpriteSheet is missing from `Assets<SpriteSheet>`");
+        let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+            error!("SpriteSheet is missing from asset store`");
             continue;
-        }
-        
-        let index = sprite_sheet.unwrap().get_sprite_index(frame);
+        };
 
-        if index.is_none() {
-            error!("Couldn't find frame: {}", frame.0);
+        let Some(index) = sprite_sheet.get_sprite_index(frame) else {
+            error!("Couldn't find frame: {}", **frame);
             continue;
-        }
+        };
 
-        atlas.index = index.unwrap()
+        atlas.index = index
     }
 }

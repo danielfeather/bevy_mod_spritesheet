@@ -18,18 +18,17 @@ pub struct SpriteSheetPlugin;
 
 impl Plugin for SpriteSheetPlugin {
     fn build(&self, app: &mut App) {
-
         app.register_type::<Frame>();
 
         #[cfg(feature = "json-array")]
         app.add_plugins(JsonArrayPlugin);
-        
+
         #[cfg(feature = "json-hash")]
         app.add_plugins(JsonHashPlugin);
     }
 }
 
-#[derive(Debug, Component, Default, Reflect)]
+#[derive(Debug, Component, Default, Reflect, Deref, DerefMut)]
 /// Component that represents a frame in a sprite sheet.
 pub struct Frame(String);
 
@@ -49,7 +48,7 @@ pub struct SpriteSheetOptions {
     /// Determines if the associated texture should be loaded.
     /// e.g. `image` meta property in JSON Hash/Array.
     /// Defaults to `false`.
-    pub texture_loading: bool
+    pub texture_loading: bool,
 }
 
 #[derive(Debug, Bundle, Default)]
