@@ -13,7 +13,7 @@ pub trait SpriteSheetFormat where Self: for<'de> Deserialize<'de> {
     fn into_layout(&self) -> TextureAtlasLayout;
 
     /// Get the name of the texture associated with the SpriteSheet
-    fn get_texture(&self) -> Option<String>;
+    fn get_texture(&self) -> Option<&str>;
 
     /// Create a new instance of the format from raw bytes
     fn new(raw: Vec<u8>) -> Self {

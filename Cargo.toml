@@ -6,7 +6,7 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-bevy = { version = "0.13", default-features = false, features = [
+bevy = { version = "0.14", default-features = false, features = [
     "bevy_asset",
     "bevy_sprite",
 ] }
@@ -32,6 +32,9 @@ name = "bevy_web_asset"
 name = "without_texture_loading"
 
 [dev-dependencies]
-bevy = "0.13.1"
-bevy-inspector-egui = "0.23.4"
+bevy = { version = "0.14", default-features = false, features = [
+    "bevy_asset",
+    "bevy_sprite",
+]  }
+bevy-inspector-egui = "0.25"
 bevy_web_asset = "0.8.0"

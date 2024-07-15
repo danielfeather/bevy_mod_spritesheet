@@ -50,20 +50,20 @@ impl SpriteSheetFormat for JsonHash {
 
     fn into_layout(&self) -> TextureAtlasLayout {
         let size = &self.meta.size;
-        let mut layout = TextureAtlasLayout::new_empty(Vec2::new(size.w, size.h));
+        let mut layout = TextureAtlasLayout::new_empty(UVec2::new(size.w, size.h));
 
         for frame in &self.frame_indexes {
             let data = &self.frames.get(frame).unwrap().frame;
 
-            let rect = Rect::new(data.x, data.y, data.x + data.w, data.y + data.h);
+            let rect = URect::new(data.x, data.y, data.x + data.w, data.y + data.h);
             layout.add_texture(rect);
         }
 
         layout
     }
 
-    fn get_texture(&self) -> Option<String> {
-        self.meta.image.clone()
+    fn get_texture(&self) -> Option<&str> {
+        self.meta.image.as_ref().map(|string| string.as_str())
     }
 
     fn new(raw: Vec<u8>) -> Self {

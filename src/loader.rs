@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy::asset::{AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
+use bevy::asset::{AssetLoader, AsyncReadExt, LoadContext};
 use bevy::asset::io::Reader;
 use bevy::prelude::*;
 use thiserror::Error;
@@ -23,14 +23,12 @@ where T: SpriteSheetFormat {
     type Asset = SpriteSheet<T>;
     type Settings = ();
     type Error = LoaderError;
-    fn load<'a>(
+    async fn load<'a>(
         &'a self,
-        reader: &'a mut Reader,
+        reader: &'a mut Reader<'_>,
         _settings: &'a Self::Settings,
-        _load_context: &'a mut LoadContext
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
-
+        _load_context: &'a mut LoadContext<'_>
+    ) -> Result<Self::Asset, Self::Error> {
             let mut raw = Vec::new();
 
             let _ = reader
@@ -40,7 +38,7 @@ where T: SpriteSheetFormat {
             let format = T::new(raw);
 
             Ok(SpriteSheet(format))
-        })
+        
     }
 
     fn extensions(&self) -> &[&str] {
@@ -53,6 +51,6 @@ where T: SpriteSheetFormat {
 pub enum LoaderError {
     #[error("An error occurred while reading the asset data")]
     Io(#[from] std::io::Error),
-    #[error("An error occurred while parsing the sprite sheet format data")]
+    #[error("An error occurred while parsing the sprite sheet format data, {0}")]
     ParseError(#[from] serde_json::Error),
 }
