@@ -32,9 +32,6 @@ name = "bevy_web_asset"
 name = "without_texture_loading"
 
 [dev-dependencies]
-bevy = { version = "0.14", default-features = false, features = [
-    "bevy_asset",
-    "bevy_sprite",
-]  }
+bevy = "0.14"
 bevy-inspector-egui = "0.25"
-bevy_web_asset = "0.8.0"
+bevy_web_asset = { git = "https://github.com/danielfeather/bevy_web_asset.git", branch = "main" }

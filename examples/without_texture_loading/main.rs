@@ -18,7 +18,7 @@ fn spawn_camera(mut commands: Commands) {
 }
 
 fn load_sprite_sheet(asset_server: Res<AssetServer>, mut commands: Commands) {
-    let sprite_sheet: Handle<SpriteSheet<JsonArray>> = asset_server.load("gabe-idle-run.json");
+    let sprite_sheet: Handle<SpriteSheet<JsonArray>> = asset_server.load("gabe-idle-run-array.json");
 
     commands.spawn((
         SpriteBundle {
