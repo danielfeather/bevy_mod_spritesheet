@@ -1,8 +1,11 @@
 use crate::{format, Frame, SpriteSheet, SpriteSheetOptions};
 use bevy::prelude::*;
 
+pub type WithoutTextureAtlasLayoutQuery<'w, 's, T> =
+    Query<'w, 's, (Entity, &'static Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>;
+
 pub fn load_atlas<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
-    entities: Query<(Entity, &Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>,
+    entities: WithoutTextureAtlasLayoutQuery<'_, '_, T>,
     mut events: EventReader<AssetEvent<SpriteSheet<T>>>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -23,23 +26,27 @@ pub fn load_atlas<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
                 continue;
             };
 
-            let layout_handle = layouts.add(sprite_sheet.into_layout());
+            let layout_handle = layouts.add(sprite_sheet.create_layout());
 
             commands.entity(entity).insert(layout_handle);
         }
     }
 }
 
+pub type WithoutTextureAtlasQuery<'w, 'b, T> = Query<
+    'w,
+    'b,
+    (
+        Entity,
+        &'static Frame,
+        &'static Handle<SpriteSheet<T>>,
+        &'static Handle<TextureAtlasLayout>,
+    ),
+    Without<TextureAtlas>,
+>;
+
 pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
-    entities: Query<
-        (
-            Entity,
-            &Frame,
-            &Handle<SpriteSheet<T>>,
-            &Handle<TextureAtlasLayout>,
-        ),
-        Without<TextureAtlas>,
-    >,
+    entities: WithoutTextureAtlasQuery<'_, '_, T>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut commands: Commands,
 ) {
@@ -58,7 +65,7 @@ pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePa
         };
 
         commands.entity(entity).insert(TextureAtlas {
-            index: index,
+            index,
             layout: layout.clone(),
         });
     }
@@ -116,10 +123,21 @@ pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     }
 }
 
+pub type ChangedQuery<'w, 's, T> = Query<
+    'w,
+    's,
+    (
+        &'static Frame,
+        &'static Handle<SpriteSheet<T>>,
+        &'static mut TextureAtlas,
+    ),
+    Changed<Frame>,
+>;
+
 /// System for watching for changes on `Frame` components so that the underlying `TextureAtlas` components
 /// can be updated
 pub fn detect_frame_changes<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
-    mut changed: Query<(&Frame, &Handle<SpriteSheet<T>>, &mut TextureAtlas), Changed<Frame>>,
+    mut changed: ChangedQuery<'_, '_, T>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
 ) {
     for (frame, sprite_sheet_handle, mut atlas) in changed.iter_mut() {

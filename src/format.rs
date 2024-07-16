@@ -13,7 +13,7 @@ where
     fn get_sprite_index(&self, frame: &Frame) -> Option<usize>;
 
     /// Create TextureAtlasLayout from the format
-    fn into_layout(&self) -> TextureAtlasLayout;
+    fn create_layout(&self) -> TextureAtlasLayout;
 
     /// Get the name of the texture associated with the SpriteSheet
     fn get_texture(&self) -> Option<&str>;

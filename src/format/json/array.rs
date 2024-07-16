@@ -48,10 +48,10 @@ impl SpriteSheetFormat for JsonArray {
     fn get_sprite_index(&self, frame_name: &crate::Frame) -> Option<usize> {
         self.frames
             .iter()
-            .position(|frame| &frame.filename == &**frame_name)
+            .position(|frame| frame.filename == **frame_name)
     }
 
-    fn into_layout(&self) -> TextureAtlasLayout {
+    fn create_layout(&self) -> TextureAtlasLayout {
         let size = &self.meta.size;
         let mut layout = TextureAtlasLayout::new_empty(UVec2::new(size.w, size.h));
 
@@ -67,6 +67,6 @@ impl SpriteSheetFormat for JsonArray {
     }
 
     fn get_texture(&self) -> Option<&str> {
-        self.meta.image.as_ref().map(|string| string.as_str())
+        self.meta.image.as_deref()
     }
 }
