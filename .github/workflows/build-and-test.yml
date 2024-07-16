@@ -4,7 +4,7 @@ on:
       - main
   pull_request:
 
-name: ci
+name: Build and Test
 
 jobs:
   check:
@@ -16,8 +16,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --all-targets
 
-  lints:
+  lint:
     runs-on: ubuntu-latest
+    name: Lint
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
