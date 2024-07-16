@@ -1,10 +1,16 @@
-use std::collections::HashMap;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-use crate::{format::{json::{FrameData, Meta}, SpriteSheetFormat}, loader::Loader};
 use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
 use crate::SpriteSheet;
+use crate::{
+    format::{
+        json::{FrameData, Meta},
+        SpriteSheetFormat,
+    },
+    loader::Loader,
+};
 
 #[derive(Serialize, Deserialize, TypePath, Default)]
 /// JSON Hash sprite sheet format.

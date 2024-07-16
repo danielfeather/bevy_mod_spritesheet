@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
-use bevy::asset::{AssetLoader, AsyncReadExt, LoadContext};
 use bevy::asset::io::Reader;
+use bevy::asset::{AssetLoader, AsyncReadExt, LoadContext};
 use bevy::prelude::*;
 use thiserror::Error;
 
@@ -11,7 +11,7 @@ use crate::SpriteSheet;
 /// Supported extensions for sprite sheets.
 pub const SUPPORTED_EXTENSIONS: &[&str] = &[
     #[cfg(any(feature = "json-array", feature = "json-hash"))]
-    "json"
+    "json",
 ];
 
 #[derive(Default)]
@@ -19,7 +19,9 @@ pub const SUPPORTED_EXTENSIONS: &[&str] = &[
 pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
 
 impl<T: Send + Sync + TypePath + SpriteSheetFormat> AssetLoader for Loader<T>
-where T: SpriteSheetFormat {
+where
+    T: SpriteSheetFormat,
+{
     type Asset = SpriteSheet<T>;
     type Settings = ();
     type Error = LoaderError;
@@ -27,18 +29,15 @@ where T: SpriteSheetFormat {
         &'a self,
         reader: &'a mut Reader<'_>,
         _settings: &'a Self::Settings,
-        _load_context: &'a mut LoadContext<'_>
+        _load_context: &'a mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
-            let mut raw = Vec::new();
+        let mut raw = Vec::new();
 
-            let _ = reader
-                .read_to_end(&mut raw)
-                .await?;
+        let _ = reader.read_to_end(&mut raw).await?;
 
-            let format = T::new(raw);
+        let format = T::new(raw);
 
-            Ok(SpriteSheet(format))
-        
+        Ok(SpriteSheet(format))
     }
 
     fn extensions(&self) -> &[&str] {

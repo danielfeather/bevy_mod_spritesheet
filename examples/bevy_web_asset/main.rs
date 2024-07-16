@@ -5,7 +5,8 @@ use bevy::{
 };
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_mod_spritesheet::{
-    format::json::array::JsonArray, Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetOptions, SpriteSheetPlugin
+    format::json::array::JsonArray, Frame, SpriteSheet, SpriteSheetBundle, SpriteSheetOptions,
+    SpriteSheetPlugin,
 };
 use bevy_web_asset::WebAssetPlugin;
 

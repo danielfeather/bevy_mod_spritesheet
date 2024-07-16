@@ -5,7 +5,10 @@ use bevy::prelude::*;
 use serde::Deserialize;
 
 /// Trait for defining a format for a SpriteSheet
-pub trait SpriteSheetFormat where Self: for<'de> Deserialize<'de> {
+pub trait SpriteSheetFormat
+where
+    Self: for<'de> Deserialize<'de>,
+{
     /// Get the index of the sprite within the TextureAtlasLayout from the `Frame`
     fn get_sprite_index(&self, frame: &Frame) -> Option<usize>;
 
