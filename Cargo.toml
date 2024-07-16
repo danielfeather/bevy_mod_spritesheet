@@ -1,5 +1,10 @@
 [package]
 name = "bevy_mod_spritesheet"
+repository = "https://github.com/danielfeather/bevy_mod_spritesheet"
+categories = [
+    "game-development",
+]
+keywords = ["bevy", "spritesheet", "texture", "atlas", "gamedev"]
 description = "Create TextureAtlasLayouts from common sprite sheet formats"
 license = "MIT"
 version = "0.2.0"
