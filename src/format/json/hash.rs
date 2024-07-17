@@ -1,10 +1,16 @@
-use std::collections::HashMap;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-use crate::{format::{json::{FrameData, Meta}, SpriteSheetFormat}, loader::Loader};
 use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
 use crate::SpriteSheet;
+use crate::{
+    format::{
+        json::{FrameData, Meta},
+        SpriteSheetFormat,
+    },
+    loader::Loader,
+};
 
 #[derive(Serialize, Deserialize, TypePath, Default)]
 /// JSON Hash sprite sheet format.
@@ -48,22 +54,22 @@ impl SpriteSheetFormat for JsonHash {
             .position(|frame| frame == &frame_name.0)
     }
 
-    fn into_layout(&self) -> TextureAtlasLayout {
+    fn create_layout(&self) -> TextureAtlasLayout {
         let size = &self.meta.size;
-        let mut layout = TextureAtlasLayout::new_empty(Vec2::new(size.w, size.h));
+        let mut layout = TextureAtlasLayout::new_empty(UVec2::new(size.w, size.h));
 
         for frame in &self.frame_indexes {
             let data = &self.frames.get(frame).unwrap().frame;
 
-            let rect = Rect::new(data.x, data.y, data.x + data.w, data.y + data.h);
+            let rect = URect::new(data.x, data.y, data.x + data.w, data.y + data.h);
             layout.add_texture(rect);
         }
 
         layout
     }
 
-    fn get_texture(&self) -> Option<String> {
-        self.meta.image.clone()
+    fn get_texture(&self) -> Option<&str> {
+        self.meta.image.as_deref()
     }
 
     fn new(raw: Vec<u8>) -> Self {

@@ -1,7 +1,14 @@
+use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
+use crate::{
+    format::{
+        json::{FrameData, Meta},
+        SpriteSheetFormat,
+    },
+    loader::Loader,
+    SpriteSheet,
+};
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::{format::{json::{FrameData, Meta}, SpriteSheetFormat}, loader::Loader, SpriteSheet};
-use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
 
 #[derive(Debug, Default, Serialize, Deserialize, TypePath)]
 /// JSON Array sprite sheet format.
@@ -23,42 +30,43 @@ pub struct JsonArrayPlugin;
 
 impl Plugin for JsonArrayPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .init_asset::<SpriteSheet<JsonArray>>()
+        app.init_asset::<SpriteSheet<JsonArray>>()
             .init_asset_loader::<Loader<JsonArray>>()
-            .add_systems(Update, (
-                load_atlas::<JsonArray>, 
-                setup_texture_atlases::<JsonArray>, 
-                detect_frame_changes::<JsonArray>, 
-                load_textures::<JsonArray>,
-            ));
-            
+            .add_systems(
+                Update,
+                (
+                    load_atlas::<JsonArray>,
+                    setup_texture_atlases::<JsonArray>,
+                    detect_frame_changes::<JsonArray>,
+                    load_textures::<JsonArray>,
+                ),
+            );
     }
 }
 
 impl SpriteSheetFormat for JsonArray {
     fn get_sprite_index(&self, frame_name: &crate::Frame) -> Option<usize> {
-        self
-        .frames
-        .iter()
-        .position(|frame| &frame.filename == &frame_name.0)
+        self.frames
+            .iter()
+            .position(|frame| frame.filename == **frame_name)
     }
 
-    fn into_layout(&self) -> TextureAtlasLayout {
+    fn create_layout(&self) -> TextureAtlasLayout {
         let size = &self.meta.size;
-        let mut layout = TextureAtlasLayout::new_empty(Vec2::new(size.w, size.h));
+        let mut layout = TextureAtlasLayout::new_empty(UVec2::new(size.w, size.h));
 
         for frame in &self.frames {
             let data = &frame.frame;
 
-            let rect = Rect::new(data.x, data.y, data.x + data.w, data.y + data.h);
+            let rect = URect::new(data.x, data.y, data.x + data.w, data.y + data.h);
+
             layout.add_texture(rect);
         }
 
         layout
     }
 
-    fn get_texture(&self) -> Option<String> {
-        self.meta.image.clone()
+    fn get_texture(&self) -> Option<&str> {
+        self.meta.image.as_deref()
     }
 }

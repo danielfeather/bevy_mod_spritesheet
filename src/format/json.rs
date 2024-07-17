@@ -1,4 +1,3 @@
-
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "json-array")]
@@ -21,15 +20,15 @@ pub struct Meta {
 #[derive(Debug, Serialize, Deserialize)]
 /// Position and dimensions for a single frame in a JSON based sprite sheet.
 pub struct FrameData {
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
+    pub x: u32,
+    pub y: u32,
+    pub w: u32,
+    pub h: u32,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 // Size of the sprite sheets texture in pixels.
 pub struct Size {
-    pub w: f32,
-    pub h: f32,
+    pub w: u32,
+    pub h: u32,
 }
