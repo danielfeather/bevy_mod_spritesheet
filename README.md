@@ -2,6 +2,7 @@
 
 # Sprite Sheet Formats for Bevy
 
+![Build and Test Workflow](https://github.com/danielfeather/bevy_mod_spritesheet/actions/workflows/build-and-test.yml/badge.svg?event=push)
 [![crates.io](https://img.shields.io/crates/v/bevy_mod_spritesheet)](https://crates.io/crates/bevy_mod_spritesheet)
 [![docs.rs](https://docs.rs/bevy_mod_spritesheet/badge.svg)](https://docs.rs/bevy_mod_spritesheet)
 
