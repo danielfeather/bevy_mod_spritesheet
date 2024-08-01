@@ -4,32 +4,24 @@ use bevy::prelude::*;
 pub type WithoutTextureAtlasLayoutQuery<'w, 's, T> =
     Query<'w, 's, (Entity, &'static Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>;
 
-pub fn load_atlas<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn setup_layouts<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     entities: WithoutTextureAtlasLayoutQuery<'_, '_, T>,
-    mut events: EventReader<AssetEvent<SpriteSheet<T>>>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
-    if events.is_empty() {
+    if entities.is_empty() {
         return;
     }
 
-    for event in events.read() {
-        for (entity, sprite_sheet_handle) in entities.iter() {
-            if !event.is_loaded_with_dependencies(sprite_sheet_handle) {
-                continue;
-            }
+    for (entity, sprite_sheet_handle) in entities.iter() {
+        let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+            continue;
+        };
 
-            let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
-                error!("SpriteSheet is missing from `Assets<SpriteSheet<T>>`");
-                continue;
-            };
+        let layout_handle = layouts.add(sprite_sheet.create_layout());
 
-            let layout_handle = layouts.add(sprite_sheet.create_layout());
-
-            commands.entity(entity).insert(layout_handle);
-        }
+        commands.entity(entity).insert(layout_handle);
     }
 }
 
@@ -52,7 +44,6 @@ pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePa
 ) {
     for (entity, frame, sprite_sheet_handle, layout) in entities.iter() {
         let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
-            error!("SpriteSheet is missing from assets store`");
             continue;
         };
 
@@ -131,7 +122,7 @@ pub type ChangedQuery<'w, 's, T> = Query<
         &'static Handle<SpriteSheet<T>>,
         &'static mut TextureAtlas,
     ),
-    Changed<Frame>,
+    Or<(Changed<Frame>, Changed<Handle<SpriteSheet<T>>>)>,
 >;
 
 /// System for watching for changes on `Frame` components so that the underlying `TextureAtlas` components

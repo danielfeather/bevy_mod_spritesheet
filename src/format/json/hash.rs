@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
+use crate::systems::{detect_frame_changes, load_textures, setup_layouts, setup_texture_atlases};
 use crate::SpriteSheet;
 use crate::{
     format::{
@@ -38,7 +38,7 @@ impl Plugin for JsonHashPlugin {
             .add_systems(
                 Update,
                 (
-                    load_atlas::<JsonHash>,
+                    setup_layouts::<JsonHash>,
                     setup_texture_atlases::<JsonHash>,
                     detect_frame_changes::<JsonHash>,
                     load_textures::<JsonHash>,

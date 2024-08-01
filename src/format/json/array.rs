@@ -1,4 +1,4 @@
-use crate::systems::{detect_frame_changes, load_atlas, load_textures, setup_texture_atlases};
+use crate::systems::{detect_frame_changes, load_textures, setup_layouts, setup_texture_atlases};
 use crate::{
     format::{
         json::{FrameData, Meta},
@@ -35,7 +35,7 @@ impl Plugin for JsonArrayPlugin {
             .add_systems(
                 Update,
                 (
-                    load_atlas::<JsonArray>,
+                    setup_layouts::<JsonArray>,
                     setup_texture_atlases::<JsonArray>,
                     detect_frame_changes::<JsonArray>,
                     load_textures::<JsonArray>,
