@@ -19,6 +19,7 @@ pub struct SpriteSheetPlugin;
 impl Plugin for SpriteSheetPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Frame>();
+        app.register_type::<SpriteSheetOptions>();
 
         #[cfg(feature = "json-array")]
         app.add_plugins(JsonArrayPlugin);
@@ -38,11 +39,12 @@ impl Frame {
     }
 }
 
-#[derive(Debug, Asset, TypePath, Deref)]
+#[derive(Debug, Asset, Deref, Reflect)]
+#[reflect(Debug)]
 /// Asset representing a sprite sheet stored in its associated format.
-pub struct SpriteSheet<T: Send + Sync + TypePath + format::SpriteSheetFormat>(T);
+pub struct SpriteSheet<T: Send + Sync + TypePath + format::SpriteSheetFormat + std::fmt::Debug>(T);
 
-#[derive(Debug, Component, Default)]
+#[derive(Debug, Component, Default, Reflect)]
 /// Options for loading a sprite sheet.
 pub struct SpriteSheetOptions {
     /// Determines if the associated texture should be loaded.
@@ -51,9 +53,11 @@ pub struct SpriteSheetOptions {
     pub texture_loading: bool,
 }
 
-#[derive(Debug, Bundle, Default)]
+#[derive(Debug, Bundle, Default, Reflect)]
 /// Bundle of components needed to load a sprite sheet.
-pub struct SpriteSheetBundle<T: format::SpriteSheetFormat + Send + Sync + TypePath> {
+pub struct SpriteSheetBundle<
+    T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug,
+> {
     pub frame: Frame,
     pub sprite_sheet: Handle<SpriteSheet<T>>,
     pub options: SpriteSheetOptions,

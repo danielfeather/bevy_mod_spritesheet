@@ -1235,8 +1235,9 @@ dependencies = [
 
 [[package]]
 name = "bevy_web_asset"
-version = "0.8.0"
-source = "git+https://github.com/danielfeather/bevy_web_asset.git?branch=main#b83f5a6ede666e7f17ff0d53e3fa1a372fc26844"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b2f6639a934f613ab11216642698a1b8472782d28eb69a0cbbced338a05fae8"
 dependencies = [
  "bevy",
  "js-sys",

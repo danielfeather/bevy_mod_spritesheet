@@ -45,4 +45,4 @@ bevy = { version = "0.14", default-features = false, features = [
     "webgl2",
 ]}
 bevy-inspector-egui = "0.25"
-bevy_web_asset = { git = "https://github.com/danielfeather/bevy_web_asset.git", branch = "main" }
+bevy_web_asset = "0.9"

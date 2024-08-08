@@ -12,7 +12,7 @@ use crate::{
     loader::Loader,
 };
 
-#[derive(Serialize, Deserialize, TypePath, Default)]
+#[derive(Serialize, Deserialize, Reflect, Default, Debug)]
 /// JSON Hash sprite sheet format.
 pub struct JsonHash {
     frames: HashMap<String, Frame>,
@@ -21,7 +21,7 @@ pub struct JsonHash {
     frame_indexes: Vec<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Reflect, Debug)]
 #[serde(rename_all = "camelCase")]
 /// An individual frame in a JSON Hash sprite sheet.
 pub struct Frame {
@@ -34,6 +34,7 @@ pub struct JsonHashPlugin;
 impl Plugin for JsonHashPlugin {
     fn build(&self, app: &mut App) {
         app.init_asset::<SpriteSheet<JsonHash>>()
+            .register_asset_reflect::<SpriteSheet<JsonHash>>()
             .init_asset_loader::<Loader<JsonHash>>()
             .add_systems(
                 Update,

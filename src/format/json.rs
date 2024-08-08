@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "json-array")]
@@ -8,7 +9,7 @@ pub mod array;
 /// Module for loading sprite sheets in the JSON Hash format.
 pub mod hash;
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Reflect)]
 #[serde(rename_all = "camelCase")]
 /// General meta data for a sprite sheet in a JSON based format.
 pub struct Meta {
@@ -17,7 +18,7 @@ pub struct Meta {
     pub scale: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Reflect)]
 /// Position and dimensions for a single frame in a JSON based sprite sheet.
 pub struct FrameData {
     pub x: u32,
@@ -26,7 +27,7 @@ pub struct FrameData {
     pub h: u32,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Reflect)]
 // Size of the sprite sheets texture in pixels.
 pub struct Size {
     pub w: u32,

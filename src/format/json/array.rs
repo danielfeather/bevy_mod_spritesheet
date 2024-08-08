@@ -10,14 +10,14 @@ use crate::{
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Serialize, Deserialize, TypePath)]
+#[derive(Debug, Default, Serialize, Deserialize, Reflect)]
 /// JSON Array sprite sheet format.
 pub struct JsonArray {
     pub frames: Vec<Frame>,
     pub meta: Meta,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Reflect)]
 #[serde(rename_all = "camelCase")]
 /// An individual frame in a JSON Array sprite sheet.
 pub struct Frame {
@@ -32,6 +32,7 @@ impl Plugin for JsonArrayPlugin {
     fn build(&self, app: &mut App) {
         app.init_asset::<SpriteSheet<JsonArray>>()
             .init_asset_loader::<Loader<JsonArray>>()
+            .register_asset_reflect::<SpriteSheet<JsonArray>>()
             .add_systems(
                 Update,
                 (

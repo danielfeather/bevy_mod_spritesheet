@@ -18,7 +18,7 @@ pub const SUPPORTED_EXTENSIONS: &[&str] = &[
 /// Generic loader for any sprite sheet format.
 pub struct Loader<T: SpriteSheetFormat>(PhantomData<T>);
 
-impl<T: Send + Sync + TypePath + SpriteSheetFormat> AssetLoader for Loader<T>
+impl<T: Send + Sync + TypePath + SpriteSheetFormat + std::fmt::Debug> AssetLoader for Loader<T>
 where
     T: SpriteSheetFormat,
 {
