@@ -1,10 +1,14 @@
 use crate::{format, Frame, SpriteSheet, SpriteSheetOptions};
 use bevy::prelude::*;
 
+/// Query that will get all entities with a Handle<SpriteSheet<T>> and where
+/// Handle<SpriteSheet<T>> has changed (includes added)
 pub type WithoutTextureAtlasLayoutQuery<'w, 's, T> =
-    Query<'w, 's, (Entity, &'static Handle<SpriteSheet<T>>), Without<Handle<TextureAtlasLayout>>>;
+    Query<'w, 's, (Entity, &'static Handle<SpriteSheet<T>>), Changed<Handle<SpriteSheet<T>>>>;
 
-pub fn setup_layouts<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
+/// System responsible for creating and inserting the `Handle<TextureAtlasLayout>` on the
+/// entity with a `Handle<SpriteSheet<T>>`
+pub fn setup_layouts<T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug>(
     entities: WithoutTextureAtlasLayoutQuery<'_, '_, T>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -25,6 +29,9 @@ pub fn setup_layouts<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
     }
 }
 
+/// Query for getting all the entities where the
+/// `Handle<TextureAtlasLayout>`s have changed (including
+/// added)
 pub type WithoutTextureAtlasQuery<'w, 'b, T> = Query<
     'w,
     'b,
@@ -34,10 +41,14 @@ pub type WithoutTextureAtlasQuery<'w, 'b, T> = Query<
         &'static Handle<SpriteSheet<T>>,
         &'static Handle<TextureAtlasLayout>,
     ),
-    Without<TextureAtlas>,
+    Changed<Handle<TextureAtlasLayout>>,
 >;
 
-pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
+/// System responsible for creating the `TextureAtlas` on
+/// an entity, based on changed `Handle<TextureAtlasLayout>`s
+pub fn setup_texture_atlases<
+    T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug,
+>(
     entities: WithoutTextureAtlasQuery<'_, '_, T>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut commands: Commands,
@@ -64,7 +75,7 @@ pub fn setup_texture_atlases<T: format::SpriteSheetFormat + Send + Sync + TypePa
 
 /// System for loading the corresponding textures for the specified SpriteSheetFormat
 /// if `texture_loading` is enabled and if the sprite sheet format supports it
-pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug>(
     entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet<T>>)>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
     mut loaded: Local<Vec<Entity>>,
@@ -127,7 +138,9 @@ pub type ChangedQuery<'w, 's, T> = Query<
 
 /// System for watching for changes on `Frame` components so that the underlying `TextureAtlas` components
 /// can be updated
-pub fn detect_frame_changes<T: format::SpriteSheetFormat + Send + Sync + TypePath>(
+pub fn detect_frame_changes<
+    T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug,
+>(
     mut changed: ChangedQuery<'_, '_, T>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
 ) {
