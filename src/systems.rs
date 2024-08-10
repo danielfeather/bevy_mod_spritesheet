@@ -1,3 +1,5 @@
+use std::f64::consts::E;
+
 use crate::{format, Frame, SpriteSheet, SpriteSheetOptions};
 use bevy::prelude::*;
 
@@ -76,52 +78,73 @@ pub fn setup_texture_atlases<
 /// System for loading the corresponding textures for the specified SpriteSheetFormat
 /// if `texture_loading` is enabled and if the sprite sheet format supports it
 pub fn load_textures<T: format::SpriteSheetFormat + Send + Sync + TypePath + std::fmt::Debug>(
-    entities: Query<(Entity, &SpriteSheetOptions, &Handle<SpriteSheet<T>>)>,
+    entities: Query<(
+        Entity,
+        Option<Ref<SpriteSheetOptions>>,
+        Ref<Handle<SpriteSheet<T>>>,
+        Option<&Handle<Image>>,
+    )>,
     sprite_sheets: Res<Assets<SpriteSheet<T>>>,
-    mut loaded: Local<Vec<Entity>>,
     mut commands: Commands,
-    server: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
+    mut sprite_sheet_loads: EventReader<AssetEvent<SpriteSheet<T>>>,
 ) {
     if entities.is_empty() {
         return;
     }
 
-    for (entity, options, sprite_sheet_handle) in entities.iter() {
+    for (entity, options, sprite_sheet_handle, possible_texture) in entities.iter() {
+        let asset_id = sprite_sheet_handle.id();
+
+        let sprite_sheet_loaded = sprite_sheet_loads.read().find_map(|event| {
+            if event.is_loaded_with_dependencies(asset_id) {
+                Some(asset_id)
+            } else {
+                None
+            }
+        });
+
+        if options.is_none() && (!sprite_sheet_handle.is_changed() || sprite_sheet_loaded.is_none())
+        {
+            continue;
+        }
+
+        let Some(options) = options else {
+            continue;
+        };
+
         if !options.texture_loading {
             continue;
         }
 
-        let Some(sprite_sheet) = sprite_sheets.get(sprite_sheet_handle) else {
+        let Some(sprite_sheet) = sprite_sheets.get(asset_id) else {
             continue;
         };
 
-        if loaded.contains(&entity) {
-            continue;
-        }
-
         let Some(path) = sprite_sheet_handle.path() else {
             error!("Unable to determine path to sprite sheet");
-            loaded.push(entity);
             continue;
         };
 
         let Some(image_path) = sprite_sheet.get_texture() else {
             error!("Unable to determine path to sprite sheet image");
-            loaded.push(entity);
             continue;
         };
 
-        let image_handle: Handle<Image> = match path.resolve_embed(image_path) {
-            Ok(resolved) => server.load(resolved),
-            Err(e) => {
-                error!("Unable to resolve path to sprite sheet image, {}", e);
-                loaded.push(entity);
-                continue;
-            }
+        let Ok(resolved_path) = path.resolve_embed(image_path) else {
+            error!("Unable to resolve path to sprite sheet image");
+            continue;
         };
 
-        commands.entity(entity).insert(image_handle);
-        loaded.push(entity);
+        if possible_texture
+            .and_then(|texture| texture.path())
+            .map(|path| *path == resolved_path)
+            .unwrap_or(false)
+        {
+            commands
+                .entity(entity)
+                .insert(asset_server.load::<Image>(resolved_path));
+        }
     }
 }
 
