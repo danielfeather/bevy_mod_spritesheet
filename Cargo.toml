@@ -36,6 +36,9 @@ name = "bevy_web_asset"
 [[example]]
 name = "without_texture_loading"
 
+[[example]]
+name = "timer"
+
 [dev-dependencies]
 bevy = { version = "0.14", default-features = false, features = [
     "bevy_sprite",
